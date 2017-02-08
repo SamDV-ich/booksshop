@@ -19,7 +19,7 @@ let tscOptions = {
     // noImplicitAny: true,
     // noLib : true,
     experimentalDecorators : true,
-    project : clientDir + "/tsconfig.json"
+    project : clientDir + "tsconfig.json"
 };
 
 gulp.task('styles', function() {
@@ -35,7 +35,7 @@ gulp.task('build', ['scripts', 'styles']);
 gulp.task('ts-client', function(cb) {
     gulp.src([clientDir + 'app/*.ts'])
         .pipe(ts(tscOptions))
-        .pipe(gulp.dest(clientDir + 'dev/app'));
+        .pipe(gulp.dest(buildPath + '/app'));
     cb();
 });
 
@@ -72,28 +72,11 @@ gulp.task('sequence', (cb) => {
 });
 
 gulp.task('watch', ['sequence'], function() {
-    let res = gulp.watch(clientDir + 'app/**.ts');
-
-    res.on('change', function(event) {
-        gulp.src(event.path).pipe(ts(tscOptions))
-            .pipe(gulp.dest(buildPath + '/app'));
-        console.log('File ' + event.path + ' was ' + event.type);
-    });
-
-    let html = gulp.watch(clientDir + '**/*.html');
-
-    html.on('change', function(event) {
-        gulp.src(event.path).pipe(gulp.dest(buildPath));
-        console.log('File ' + event.path + ' was ' + event.type);
-    });
-});
-
-gulp.task('browser-sync', ['watch'], () => {
     browserSync.init({
-        proxy: '127.0.0.1'
+        proxy: serverConf.config.server.host + ':' + serverConf.config.server.port
     });
 
-    let res = gulp.watch(clientDir + 'app/**/*.ts');
+    let res = gulp.watch(clientDir + 'app/**.ts');
 
     res.on('change', function(event) {
         gulp.src(event.path).pipe(ts(tscOptions))
@@ -102,7 +85,7 @@ gulp.task('browser-sync', ['watch'], () => {
         browserSync.reload();
     });
 
-    let html = gulp.watch(clientDir + '/**/*.html');
+    let html = gulp.watch(['!' + buildPath + '/**/*' , clientDir + '**/*.html']);
 
     html.on('change', function(event) {
         gulp.src(event.path).pipe(gulp.dest(buildPath));
