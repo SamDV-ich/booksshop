@@ -1,0 +1,33 @@
+.items {
+  &.books {
+    .item {
+      margin: 10px;
+      width: 200px;
+      height: 400px;
+      overflow: hidden;
+      float: left;
+    }
+  }
+}
+
+header {
+  nav {
+    ul {
+      -webkit-padding-start: 0;
+      -webkit-padding-end: 0;
+      li {
+        display: inline-block;
+        list-style: none;
+        +li {
+          margin-left: 5px;
+        }
+        a {
+          border: 1px solid gainsboro;
+          padding: 5px;
+          text-decoration: none;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}

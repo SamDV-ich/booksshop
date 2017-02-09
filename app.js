@@ -36,7 +36,6 @@ server.on('error', (e) => {
 });
 
 server.setTimeout(conf.config.server && conf.config.server.requestTimeout ? conf.config.server.requestTimeout : 60000, (socket) => {
-    console.log('time out');
     // close connection with user
     // 'HTTP/1.1 503 ' + http.STATUS_CODES[503]
     socket.end();

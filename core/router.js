@@ -46,6 +46,9 @@ exports.execute = function(req, res, callback) {
     else if((new RegExp('\.css$', 'i')).test(reqPathName)) {
         responseData.file.ContentType = 'text/css';
     }
+    else if((new RegExp('\.html$', 'i')).test(reqPathName)) {
+        responseData.file.ContentType = 'text/html';
+    }
     else if(fileExtMatch = reqPathName.match(/\.(jpg|jpeg|png|gif|svg|ico)$/i)) {
         let mime = 'image/';
 

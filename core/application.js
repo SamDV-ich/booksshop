@@ -40,6 +40,7 @@ function controllerCallBack(req, res, data) {
 
 // wait object with two params isFile and controller (controller name)
 function callback(req, res, result) {
+    console.log(result);
     if(!result || typeof result != 'object') {
         result = {
             file : {}
