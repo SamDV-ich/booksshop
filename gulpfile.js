@@ -33,9 +33,9 @@ gulp.task('scripts', function() {
 gulp.task('build', ['scripts', 'styles']);
 
 gulp.task('ts-client', function(cb) {
-    gulp.src([clientDir + 'app/*.ts'])
+    gulp.src([clientDir + 'app/**/*.ts'], {base:clientDir})
         .pipe(ts(tscOptions))
-        .pipe(gulp.dest(buildPath + '/app'));
+        .pipe(gulp.dest(buildPath));
     cb();
 });
 
@@ -47,9 +47,10 @@ gulp.task('del-dev', function(cb) {
 gulp.task('copy-dev', function(cb) {
    gulp.src(
        [
+           '!' + buildPath * '/**/*',
            clientDir + 'assets/**/*',
            clientDir + 'systemjs.config.js',
-           clientDir + 'index.html',
+           clientDir + '**/*.html',
        ],
        {base: clientDir}
    )
@@ -79,16 +80,16 @@ gulp.task('watch', ['sequence'], function() {
     let res = gulp.watch(clientDir + 'app/**.ts');
 
     res.on('change', function(event) {
-        gulp.src(event.path).pipe(ts(tscOptions))
-            .pipe(gulp.dest(buildPath + '/app'));
+        gulp.src(['!' + buildPath * '/**/*', event.path], {base: clientDir}).pipe(ts(tscOptions))
+            .pipe(gulp.dest(buildPath));
         console.log('File ' + event.path + ' was ' + event.type);
         browserSync.reload();
     });
 
-    let html = gulp.watch(['!' + buildPath + '/**/*' , clientDir + '**/*.html']);
+    let html = gulp.watch(['!' + buildPath * '/**/*' , clientDir + '**/*.html']);
 
     html.on('change', function(event) {
-        gulp.src(event.path).pipe(gulp.dest(buildPath));
+        gulp.src(event.path, {base:clientDir}).pipe(gulp.dest(buildPath));
         console.log('File ' + event.path + ' was ' + event.type);
         browserSync.reload();
     });
