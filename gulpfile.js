@@ -3,9 +3,12 @@ const gulp = require('gulp'),
     del = require('del'),
     sequence = require('gulp-sequence').use(gulp),
     browserSync = require('browser-sync').create(),
-    serverConf = require('./config/config');
+    serverConf = require('./config/config'),
+    watch = require('gulp-watch'),
+    less = require('gulp-less'),
+    LessAutoPrefixPlugin = require('less-plugin-autoprefix');
 
-const clientDir = serverConf.config.client.dir + '/',
+const clientDir = './' + serverConf.config.client.dir + '/',
     buildPath = clientDir + serverConf.config.client.devDir;
 
 let tscOptions = {
@@ -29,6 +32,15 @@ gulp.task('styles', function() {
 gulp.task('scripts', function() {
 
 });
+gulp.task('less', function() {
+    gulp.src(clientDir + 'less/*.less')
+        .pipe(less({
+            plugins : [
+                new LessAutoPrefixPlugin({ browsers: ['last 2 versions'] })
+            ]
+        }))
+        .pipe(gulp.dest(buildPath + '/assets/css'));
+});
 
 gulp.task('build', ['scripts', 'styles']);
 
@@ -47,7 +59,6 @@ gulp.task('del-dev', function(cb) {
 gulp.task('copy-dev', function(cb) {
    gulp.src(
        [
-           '!' + buildPath * '/**/*',
            clientDir + 'assets/**/*',
            clientDir + 'systemjs.config.js',
            clientDir + '**/*.html',
@@ -69,28 +80,42 @@ gulp.task('copy-dev', function(cb) {
 });
 
 gulp.task('sequence', (cb) => {
-    sequence('del-dev', 'copy-dev', 'ts-client')(cb);
+    sequence('del-dev', 'copy-dev', 'dev-async')(cb);
 });
+
+gulp.task('dev-async', ['ts-client', 'less']);
 
 gulp.task('watch', ['sequence'], function() {
     browserSync.init({
         proxy: serverConf.config.server.host + ':' + serverConf.config.server.port
     });
 
-    let res = gulp.watch(clientDir + 'app/**.ts');
-
-    res.on('change', function(event) {
-        gulp.src(['!' + buildPath * '/**/*', event.path], {base: clientDir}).pipe(ts(tscOptions))
-            .pipe(gulp.dest(buildPath));
-        console.log('File ' + event.path + ' was ' + event.type);
+    watch(clientDir + 'app/**/*.ts', (e) => {
+        log(e);
+        gulp.src([e.path], {base: clientDir}).pipe(ts(tscOptions)).pipe(gulp.dest(buildPath));
         browserSync.reload();
     });
 
-    let html = gulp.watch(['!' + buildPath * '/**/*' , clientDir + '**/*.html']);
-
-    html.on('change', function(event) {
-        gulp.src(event.path, {base:clientDir}).pipe(gulp.dest(buildPath));
-        console.log('File ' + event.path + ' was ' + event.type);
+    watch(['**/*.html', '!client/dev/**/*'], (e) => {
+        log(e);
+        gulp.src([e.path], {base: clientDir}).pipe(gulp.dest(buildPath));
         browserSync.reload();
     });
+
+    watch([clientDir + 'less/*.less'], (e) => {
+        log(e);
+        gulp.src([e.path])
+            .pipe(less({
+                plugins : [
+                    new LessAutoPrefixPlugin({ browsers: ['last 2 versions'] })
+                ]
+            }))
+            .pipe(gulp.dest(buildPath + '/assets/css'));
+
+        browserSync.reload()
+    })
 });
+
+function log(e) {
+    console.log('File changed: ' + e.path);
+}

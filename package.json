@@ -24,8 +24,11 @@
     "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",
+    "gulp-less": "^3.3.0",
     "gulp-sequence": "^0.4.6",
     "gulp-typescript": "^3.1.4",
+    "gulp-watch": "^4.3.11",
+    "less-plugin-autoprefix": "^1.5.1",
     "typescript": "^2.0.10"
   },
   "scripts": {
